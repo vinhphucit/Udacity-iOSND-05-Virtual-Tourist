@@ -23,6 +23,7 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
     var deletedIndexPaths: [IndexPath]!
     var updatedIndexPaths: [IndexPath]!
     var totalPages: Int? = nil
+    var currentPage: Int = 1
     var pin: Pin?
     var fetchedResultsController: NSFetchedResultsController<Photo>!
     
@@ -92,7 +93,7 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
         
         
         
-        NetworkClient.shared.doSearchPhotos(latitude: lat, longitude: lon, completion: { (data, error) in
+        NetworkClient.shared.doSearchPhotos(latitude: lat, longitude: lon, currentPage: currentPage, completion: { (data, error) in
             
             if error != nil {
               
@@ -103,7 +104,11 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
                 if let data = data {
                     self.totalPages = data.photos.pages
                     let totalPhotos = data.photos.photo.count
-                    
+                    if self.currentPage < self.totalPages! {
+                        self.currentPage = self.currentPage + 1
+                    }else {
+                        self.currentPage = 1
+                    }
                     self.storePhotos(data.photos.photo, forPin: pin)
                    
                 

@@ -17,7 +17,7 @@ enum HTTPMethod: String {
 }
 
 enum APIRequest {
-    case searchPhotos(latitude: Double, longitude: Double)
+    case searchPhotos(latitude: Double, longitude: Double, page: Int)
     // MARK: URL Request
     
     var urlRequest: URLRequest? {
@@ -83,14 +83,14 @@ enum APIRequest {
         var items = [URLQueryItem]()
         
         switch self {
-        case .searchPhotos(let latitude, let longitude):
+        case .searchPhotos(let latitude, let longitude, let page):
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.Method, value: NetworkConstants.FlickrParamValues.SearchMethod))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.APIKey, value: NetworkConstants.FlickrParamValues.APIKey))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.Extras, value: NetworkConstants.FlickrParamValues.MediumURL))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.Format, value: NetworkConstants.FlickrParamValues.ResponseFormat))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.SafeSearch, value: NetworkConstants.FlickrParamValues.UseSafeSearch))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.PhotosPerPage, value: String(NetworkConstants.FlickrParamValues.PhotosPerPage)))
-            items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.Page, value: NetworkConstants.FlickrParamValues.Page))
+            items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.Page, value: "\(page)"))
              items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.NoJSONCallback, value: NetworkConstants.FlickrParamValues.DisableJSONCallback))
             items.append(URLQueryItem(name: NetworkConstants.FlickrParamKeys.BoundingBox, value: MiscUtils.bboxString(latitude: latitude, longitude: longitude)))
         default:
