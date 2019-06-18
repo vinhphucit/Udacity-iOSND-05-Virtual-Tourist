@@ -18,8 +18,28 @@ class MapViewController: UIViewController, MKMapViewDelegate {
     
     private var mapChangedFromUserInteraction = false
     
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        if (mapChangedFromUserInteraction) {
+            print("New Region \(mkMapView.region)")
+            MapUserDefault.shared.saveRegion(mapRegion: mkMapView.region)
+        }
+    }
     
-    
+    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        mapChangedFromUserInteraction = mapViewRegionDidChangeFromUserInteraction()
+    }
+    private func mapViewRegionDidChangeFromUserInteraction() -> Bool {
+        let view = self.mkMapView.subviews[0]
+        //  Look through gesture recognizers to determine whether this region change is from user interaction
+        if let gestureRecognizers = view.gestureRecognizers {
+            for recognizer in gestureRecognizers {
+                if( recognizer.state == UIGestureRecognizerState.began || recognizer.state == UIGestureRecognizerState.ended ) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -55,7 +75,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
         
         
         
-        if sender.state == .began {
+        if sender.state == .changed {
             let location = sender.location(in: mkMapView)
             let locCoord = mkMapView.convert(location, toCoordinateFrom: mkMapView)
             let pinAnnotation = MKPointAnnotation()
@@ -74,24 +94,11 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             
         }
     }
-    private func mapViewRegionDidChangeFromUserInteraction() -> Bool {
-        let view = self.mkMapView.subviews[0]
-        //  Look through gesture recognizers to determine whether this region change is from user interaction
-        if let gestureRecognizers = view.gestureRecognizers {
-            for recognizer in gestureRecognizers {
-                if( recognizer.state == UIGestureRecognizerState.began || recognizer.state == UIGestureRecognizerState.ended ) {
-                    return true
-                }
-            }
-        }
-        return false
-    }
+    
     // MARK: - MKMapViewDelegate
     
     
-    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
-        mapChangedFromUserInteraction = mapViewRegionDidChangeFromUserInteraction()
-    }
+    
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         
@@ -136,12 +143,7 @@ class MapViewController: UIViewController, MKMapViewDelegate {
             }
         }
     }
-    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        if (mapChangedFromUserInteraction) {
-            print("New Region \(mkMapView.region)")
-            MapUserDefault.shared.saveRegion(mapRegion: mkMapView.region)
-        }
-    }
+    
     
     private func showPinsOnMap(pins: [Pin]) {
         for pin in pins where pin.latitude != nil && pin.longitude != nil {

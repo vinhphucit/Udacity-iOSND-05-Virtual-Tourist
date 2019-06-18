@@ -238,6 +238,9 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
         }
         return 0
     }
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying: UICollectionViewCell, forItemAt: IndexPath) {
+        
+    }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let celldentifier = "PhotoCell"
@@ -246,18 +249,10 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
         cell.activityIndicator.startAnimating()
         
         let photo = fetchedResultsController.object(at: indexPath)
-                downloadImage(using: cell, photo: photo, collectionView: collectionView, index: indexPath)
+         downloadImage(using: cell, photo: photo, collectionView: collectionView, index: indexPath)
         return cell
     }
-    
 
-
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying: UICollectionViewCell, forItemAt: IndexPath) {
-        
-    }
-    
-    // End of Collection view
-    
     private func downloadImage(using cell: PhotoCell, photo: Photo, collectionView: UICollectionView, index: IndexPath) {
         if let imageData = photo.image {
             cell.activityIndicator.stopAnimating()
@@ -268,21 +263,18 @@ class PhotoViewController: UIViewController, NSFetchedResultsControllerDelegate,
                 FileDownloader.shared.downloadImage(imageUrl: imageUrl) { (data, error) in
                     if let _ = error {
                         cell.activityIndicator.stopAnimating()
-//                        self.errorForImageUrl(imageUrl)
-                        return
+//                        errorForImageUrl(imageUrl)
                     } else if let data = data {
-                        
-                            
-                            if let currentCell = collectionView.cellForItem(at: index) as? PhotoCell {
+//                            if let currentCell = collectionView.cellForItem(at: index) as? PhotoCell {
 //                            if currentCell.imageUrl == imageUrl {
-                                    currentCell.imageView.image = UIImage(data: data)
-                                    cell.activityIndicator.stopAnimating()
-                                }
+//                                    currentCell.imageView.image = UIImage(data: data)
+//                                    cell.activityIndicator.stopAnimating()
+//                                }
 //                            }
                             photo.image = NSData(data: data)
-//                            DispatchQueue.global(qos: .background).async {
+                            DispatchQueue.global(qos: .background).async {
                                 DataController.shared.saveContext()
-//                            }
+                            }
                         
                     }
                 }
